@@ -1,8 +1,8 @@
 Package.describe({
-  "summary": "Performance Monitoring for Meteor",
+  "summary": "Performance Monitoring for Radar",
   "version": "3.3.0",
-  "git": "https://github.com/meteor/meteor-apm-agent.git",
-  "name": "mdg:meteor-apm-agent"
+  "git": "https://github.com/Bema-Technologies/radar-apm-agent.git",
+  "name": "bema:radar-apm-agent"
 });
 
 var npmModules = {
@@ -56,6 +56,10 @@ Package.on_test(function(api) {
     'tests/models/pubsub.js',
     'tests/models/system.js',
     'tests/models/errors.js',
+    
+    // TODO
+    // custom model tests
+
     'tests/tracer/tracer_store.js',
     'tests/tracer/tracer.js',
     'tests/tracer/default_filters.js',
@@ -128,6 +132,7 @@ function configurePackage(api) {
     'lib/models/pubsub.js',
     'lib/models/system.js',
     'lib/models/errors.js',
+    'lib/models/custom.js',
     'lib/docsize_cache.js',
     'lib/kadira.js',
     'lib/hijack/wrap_server.js',
