@@ -1,6 +1,6 @@
 Package.describe({
-  "summary": "Performance Monitoring for Radar",
-  "version": "3.3.0",
+  "summary": "Performance Monitoring for Meteor",
+  "version": "4.0.4",
   "git": "https://github.com/Bema-Technologies/radar-apm-agent.git",
   "name": "bema:radar-apm-agent"
 });
@@ -90,7 +90,7 @@ Package.on_test(function(api) {
 
 function configurePackage(api) {
   if (api.versionsFrom) {
-    api.versionsFrom('METEOR@1.11');
+    api.versionsFrom('METEOR@1.12');
     api.use('meteorhacks:zones@1.2.1', {weak: true});
   }
 
