@@ -48,5 +48,5 @@ Kadira._startInstrumenting = function(callback) {
 // One reason for this is to call `setLables()` function
 // Otherwise, CPU profile can't see all our custom labeling
 Kadira._startInstrumenting(function() {
-  console.log('Meteor APM: completed instrumenting the app')
+  console.log('Radar APM: completed instrumenting the app')
 });

@@ -88,15 +88,15 @@ Kadira.connect = function (appId, appSecret, options) {
     Kadira.coreApi._checkAuth()
       .then(function () {
         logger('connected to app: ', appId);
-        console.log('Meteor APM: Successfully connected');
+        console.log('Radar APM: Successfully connected');
         Kadira._sendAppStats();
         Kadira._schedulePayloadSend();
       })
       .catch(function (err) {
-        console.log('Meteor APM: authentication failed - check your appId & appSecret')
+        console.log('Radar APM: authentication failed - check your appId & appSecret')
       });
   } else {
-    throw new Error('Meteor APM: required appId and appSecret');
+    throw new Error('Radar APM: required appId and appSecret');
   }
 
   // start tracking errors
@@ -151,6 +151,10 @@ Kadira._sendAppStats = function () {
   // TODO get version number for installed packages
   _.each(Package, function (v, name) {
     appStats.packageVersions.push({ name: name, version: null });
+  });
+
+  appStats.customMetrics = Object.keys(Kadira.models.custom.metrics).map((key) => {
+    return { name: key, type: Kadira.models.custom.metrics[key].type }
   });
 
   Kadira.coreApi.sendData({
@@ -235,7 +239,7 @@ Kadira.ignoreErrorTracking = function (err) {
 
 /**
  * 
- * @param {object} metric Metric to initalize
+ * @param {object} metric Metric to initalize. Can be of type sum or avg.
  * @param {string} metric.name Metric name
  * @param {string} metric.type Metric type, can be one of sum or avg 
  */

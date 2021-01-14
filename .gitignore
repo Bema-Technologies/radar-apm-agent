@@ -1,6 +1,1 @@
-.build*
-smart.lock
-versions.json
-*.swp
-.idea/
-/.versions
+node_modules/

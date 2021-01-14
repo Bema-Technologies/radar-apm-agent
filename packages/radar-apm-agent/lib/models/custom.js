@@ -39,6 +39,17 @@ CustomModel.prototype.buildPayload = function () {
 
 // type can be sum, avg
 CustomModel.prototype.initMetric = function (name, type) {
+  if (["_id", "appId", "host", "startTime"].includes(name)) {
+    console.error("Radar APM: Invalid custom metric name.");
+    return;
+  }
+
+  if (!["avg", "sum"].includes(type)) {
+    console.error("Radar APM: Invalid custom metric type.");
+    return;
+  }
+
+  
   this.metrics[name] = {
     value: 0,
     count: 0,
@@ -51,6 +62,6 @@ CustomModel.prototype.inc = function (name, amount) {
     this.metrics[name].value += amount;
     this.metrics[name].count += 1;
   } else {
-    console.warn(`Could not increment Kadira metric ${name}. Was this metric initialized?`)
+    console.warn(`Radar APM: Could not increment Kadira metric ${name}. Was this metric initialized?`)
   }
 }
