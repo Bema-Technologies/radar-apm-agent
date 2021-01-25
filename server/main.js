@@ -4,10 +4,12 @@ import '/imports/startup/server';
 import '/imports/startup/both';
 
 Kadira.connect("LkbZABK9s4yGPJ26Q", "FS2zJT9rxiWcp49ET", {
-  endpoint: "https://heavy-starfish-57.loca.lt/engine"
+  endpoint: "http://localhost:3000/engine"
 });
 
 Kadira.initMetric({
   name: "Links Added",
   type: "sum"
 });
+
+// Kadira.ignoreMethod(["links.insert"]);

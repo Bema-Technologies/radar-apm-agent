@@ -25,6 +25,15 @@ WebApp.connectHandlers.use('/', (req, res, next) => {
 });
 ```
 
+## Ignore Methods
+
+You can optionally ignore methods so that they will not be tracked by Kadira. On server startup do something like:
+
+```
+Kadira.ignoreMethod("login");
+Kadira.ignoreMethod(["login", "my-secret-method]);
+```
+
 More examples to come....
 
 Check out the [Meteor APM Guide](http://galaxy-guide.meteor.com/apm-getting-started.html) for more information and improve your app with Meteor APM.

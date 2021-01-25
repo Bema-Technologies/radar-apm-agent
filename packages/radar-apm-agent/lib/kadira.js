@@ -157,6 +157,8 @@ Kadira._sendAppStats = function () {
     return { name: key, type: Kadira.models.custom.metrics[key].type }
   });
 
+  appStats.ignoredMethods = Array.from(Kadira.models.methods.ignoredMethods);
+
   Kadira.coreApi.sendData({
     startTime: new Date(),
     appStats: appStats
@@ -262,3 +264,11 @@ Kadira.incMetric = ({
 }) => {
   Kadira.models.custom.inc(name, amount);
 };
+
+/**
+ * 
+ * @param {string || array} method Method name to ignore
+ */
+Kadira.ignoreMethod = (method) => {
+  Kadira.models.methods.addIgnoredMethod(method);
+}

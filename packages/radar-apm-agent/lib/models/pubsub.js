@@ -82,7 +82,13 @@ PubsubModel.prototype._trackReady = function(session, sub, trace) {
 
   var subscriptionState = this.subscriptions[subscriptionId];
   if(subscriptionState && !subscriptionState.readyTracked) {
-    metrics.resTime += timestamp - subscriptionState.startTime;
+    const resTime = timestamp - subscriptionState.startTime;
+    metrics.resTime += resTime;
+
+    if (resTime > metrics.maxResTime) {
+      metrics.maxResTime = resTime;
+    }
+
     subscriptionState.readyTracked = true;
   }
 
@@ -122,6 +128,7 @@ PubsubModel.prototype._getMetrics = function(timestamp, publication) {
       subs: 0,
       unsubs: 0,
       resTime: 0,
+      maxResTime: 0,
       activeSubs: 0,
       activeDocs: 0,
       lifeTime: 0,
@@ -232,6 +239,10 @@ PubsubModel.prototype.buildPayload = function(buildDetailInfo) {
       // We only calculate resTime for new subscriptions
       singlePubMetrics.resTime /= singlePubMetrics.subs;
       singlePubMetrics.resTime = singlePubMetrics.resTime || 0;
+
+      // track max resTime
+      singlePubMetrics.maxResTime = singlePubMetrics.maxResTime || 0;
+
       // We only track lifeTime in the unsubs
       singlePubMetrics.lifeTime /= singlePubMetrics.unsubs;
       singlePubMetrics.lifeTime = singlePubMetrics.lifeTime || 0;
