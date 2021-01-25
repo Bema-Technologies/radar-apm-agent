@@ -145,10 +145,6 @@ MethodsModel.prototype.buildPayload = function (buildDetailedInfo) {
         methodMetrics.methods[methodName][field] /=
           methodMetrics.methods[methodName].count;
       });
-
-      if (this.ignoredMethods.has(methodName)) {
-        delete methodMetrics.methods[methodName];
-      }
     }
 
     payload.methodMetrics.push(methodMetricsByMinute[key]);

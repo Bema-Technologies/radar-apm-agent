@@ -68,6 +68,10 @@ TrackMeteorDebug = function () {
         var error = new Error(message);
         error.stack = stack;
         var trace = getTrace(error, 'server-internal', 'Meteor._debug');
+        if (!trace.name) {
+          trace.name = `${trace.subType} ${trace.type}`
+        }
+
         Kadira.models.error.trackError(error, trace);
       }
     }

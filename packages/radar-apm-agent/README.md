@@ -27,7 +27,7 @@ WebApp.connectHandlers.use('/', (req, res, next) => {
 
 ## Ignore Methods
 
-You can optionally ignore methods so that they will not be tracked by Kadira. On server startup do something like:
+You can optionally ignore methods so that they traces will not be tracked by Kadira. Please note that these ignored methods will also hide server side error traces for those requests as well. You will see an error occured, but traces and stacks are wiped. On server startup do something like:
 
 ```
 Kadira.ignoreMethod("login");
