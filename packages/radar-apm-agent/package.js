@@ -1,6 +1,6 @@
 Package.describe({
   "summary": "Performance Monitoring for Meteor",
-  "version": "4.0.9",
+  "version": "4.1.0",
   "git": "https://github.com/Bema-Technologies/radar-apm-agent.git",
   "name": "bema:radar-apm-agent"
 });
