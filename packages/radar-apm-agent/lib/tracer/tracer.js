@@ -128,6 +128,9 @@ Tracer.prototype.buildTrace = function (traceInfo) {
     if (traceInfo.events[0].data) {
       firstEvent.push(traceInfo.events[0].data);
     }
+
+    processedEvents.push(firstEvent);
+
     for (var lc = 1; lc < traceInfo.events.length - 1; lc += 2) {
       var prevEventEnd = traceInfo.events[lc - 1];
       var startEvent = traceInfo.events[lc];
@@ -168,6 +171,7 @@ Tracer.prototype.buildTrace = function (traceInfo) {
     traceInfo.metrics = metrics;
     traceInfo.events = processedEvents;
     traceInfo.isEventsProcessed = true;
+
     return traceInfo;
   }
 };

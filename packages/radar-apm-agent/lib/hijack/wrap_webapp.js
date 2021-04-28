@@ -92,7 +92,7 @@ export async function wrapWebApp() {
           Kadira.tracer.eventEnd(trace, req.__kadiraInfo.asyncEvent);
         }
 
-        const lastEvent = Kadira.tracer.getLastEvent(trace)
+        const lastEvent = Kadira.tracer.getLastEvent(trace);
         if (lastEvent.type != 'start') {
           Kadira.tracer.endLastEvent(trace);
         }
