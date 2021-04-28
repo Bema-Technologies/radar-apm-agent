@@ -1,25 +1,10 @@
 var METHOD_METRICS_FIELDS = ['wait', 'db', 'http', 'email', 'async', 'compute', 'total'];
 
 MethodsModel = function (metricsThreshold) {
-  var self = this;
-
   this.methodMetricsByMinute = Object.create(null);
   this.errorMap = Object.create(null);
 
   this.ignoredMethods = new Set();
-
-  this._metricsThreshold = _.extend({
-    "wait": 100,
-    "db": 100,
-    "http": 1000,
-    "email": 100,
-    "async": 100,
-    "compute": 100,
-    "total": 200
-  }, metricsThreshold || Object.create(null));
-
-  //store max time elapsed methods for each method, event(metrics-field)
-  this.maxEventTimesForMethods = Object.create(null);
 
   this.tracerStore = new TracerStore({
     interval: 1000 * 60, //process traces every minute
@@ -155,9 +140,22 @@ MethodsModel.prototype.buildPayload = function (buildDetailedInfo) {
   let cleanedMethodRequests = [];
 
   methodRequests.forEach((request) => {
-    if (!this.ignoredMethods.has(request.name)) {
-      cleanedMethodRequests.push(request);
+    if (this.ignoredMethods.has(request.name) && request.events) {
+      request.events = request.events.map((event) => {
+        let cleanedEvent = ([
+          event[0],
+          event[1]
+        ]);
+
+        if (event[0] == "error") {
+          cleanedEvent.push({ stack: "Error stack wiped due to ignore list." })
+        }
+
+        return cleanedEvent;
+      })
     }
+
+    cleanedMethodRequests.push(request);
   })
 
   payload.methodRequests = cleanedMethodRequests;

@@ -3,8 +3,8 @@
 import '/imports/startup/server';
 import '/imports/startup/both';
 
-Kadira.connect("LkbZABK9s4yGPJ26Q", "FS2zJT9rxiWcp49ET", {
-  endpoint: "http://localhost:3000/engine"
+Kadira.connect("dCtYwcGtWH7mF4yyc", "ho5h4GvYkamhuLd7r", {
+  endpoint: "http://localhost:3001/engine"
 });
 
 Kadira.initMetric({
@@ -12,4 +12,4 @@ Kadira.initMetric({
   type: "sum"
 });
 
-// Kadira.ignoreMethod(["links.insert"]);
+Kadira.ignoreMethod(["links.insert"]);

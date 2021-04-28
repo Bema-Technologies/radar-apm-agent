@@ -32,3 +32,13 @@ Meteor.startup(() => {
     data.forEach(link => Links.insert(link));
   }
 });
+
+WebApp.connectHandlers.use("/test", (req, res) => {
+  res.writeHead(200);
+  res.end(`Hello world from: ${Meteor.release}`);
+});
+
+WebApp.connectHandlers.use("/error", (req, res) => {
+  res.writeHead(500);
+  res.end();
+});

@@ -18,6 +18,7 @@ Kadira.models.methods = new MethodsModel();
 Kadira.models.pubsub = new PubsubModel();
 Kadira.models.system = new SystemModel();
 Kadira.models.custom = new CustomModel();
+Kadira.models.webapp = new WebAppModel();
 Kadira.docSzCache = new DocSzCache(100000, 10);
 
 Kadira.connect = function (appId, appSecret, options) {
@@ -123,6 +124,7 @@ Kadira._buildPayload = function () {
   _.extend(payload, Kadira.models.pubsub.buildPayload(buildDetailedInfo));
   _.extend(payload, Kadira.models.system.buildPayload())
   _.extend(payload, Kadira.models.custom.buildPayload());
+  _.extend(payload, Kadira.models.webapp.buildPayload());
 
   if (Kadira.options.enableErrorTracking) {
     _.extend(payload, Kadira.models.error.buildPayload());
@@ -176,6 +178,7 @@ Kadira._schedulePayloadSend = function () {
 Kadira._sendPayload = function (callback) {
   new Fibers(function () {
     var payload = Kadira._buildPayload();
+
     Kadira.coreApi.sendData(payload)
       .then(callback)
       .catch(function (err) {

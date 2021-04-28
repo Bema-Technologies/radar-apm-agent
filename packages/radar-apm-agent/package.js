@@ -1,6 +1,6 @@
 Package.describe({
   "summary": "Performance Monitoring for Meteor",
-  "version": "4.0.8",
+  "version": "4.0.9",
   "git": "https://github.com/Bema-Technologies/radar-apm-agent.git",
   "name": "bema:radar-apm-agent"
 });
@@ -12,7 +12,8 @@ var npmModules = {
   "evloop-monitor": "0.1.0",
   "lru-cache": "4.0.0",
   "json-stringify-safe": "5.0.1",
-  "uuid": "3.3.2"
+  "uuid": "3.3.2",
+  "parseurl": "1.3.3"
 };
 
 Npm.depends(npmModules);
@@ -106,6 +107,7 @@ function configurePackage(api) {
     'http',
     'email',
     'random',
+    "webapp"
   ], ['server']);
 
   api.use(['underscore', 'random', 'http', 'localstorage'], ['client']);
@@ -133,6 +135,7 @@ function configurePackage(api) {
     'lib/models/system.js',
     'lib/models/errors.js',
     'lib/models/custom.js',
+    'lib/models/webapp.js',
     'lib/docsize_cache.js',
     'lib/kadira.js',
     'lib/hijack/wrap_server.js',
@@ -140,6 +143,9 @@ function configurePackage(api) {
     'lib/hijack/wrap_subscription.js',
     'lib/hijack/wrap_observers.js',
     'lib/hijack/wrap_ddp_stringify.js',
+    'lib/hijack/wrap_webapp.js',
+    'lib/hijack/fs.js',
+    'lib/hijack/wrap_routers.js',
     'lib/hijack/instrument.js',
     'lib/hijack/db.js',
     'lib/hijack/http.js',

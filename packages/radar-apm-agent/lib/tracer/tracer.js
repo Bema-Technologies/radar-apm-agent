@@ -1,6 +1,7 @@
 var Fibers = Npm.require('fibers');
 var eventLogger = Npm.require('debug')('kadira:tracer');
-var REPITITIVE_EVENTS = {'db': true, 'http': true, 'email': true, 'wait': true, 'async': true};
+var REPITITIVE_EVENTS = { 'db': true, 'http': true, 'email': true, 'wait': true, 'async': true, 'fs': true };
+var MAX_TRACE_EVENTS = 1500;
 
 Tracer = function Tracer() {
   this._filters = [];
@@ -9,7 +10,7 @@ Tracer = function Tracer() {
 //In the future, we might wan't to track inner fiber events too.
 //Then we can't serialize the object with methods
 //That's why we use this method of returning the data
-Tracer.prototype.start = function(session, msg) {
+Tracer.prototype.start = function (session, msg) {
   var traceInfo = {
     _id: session.id + "::" + msg.id,
     session: session.id,
@@ -18,11 +19,14 @@ Tracer.prototype.start = function(session, msg) {
     events: []
   };
 
-  if(msg.msg == 'method') {
+  if (msg.msg == 'method') {
     traceInfo.type = 'method';
     traceInfo.name = msg.method;
-  } else if(msg.msg == 'sub') {
+  } else if (msg.msg == 'sub') {
     traceInfo.type = 'sub';
+    traceInfo.name = msg.name;
+  } else if (msg.msg == 'http') {
+    traceInfo.type = 'http';
     traceInfo.name = msg.name;
   } else {
     return null;
@@ -31,10 +35,10 @@ Tracer.prototype.start = function(session, msg) {
   return traceInfo;
 };
 
-Tracer.prototype.event = function(traceInfo, type, data) {
+Tracer.prototype.event = function (traceInfo, type, data) {
   // do not allow to proceed, if already completed or errored
   var lastEvent = this.getLastEvent(traceInfo);
-  if(lastEvent && ['complete', 'error'].indexOf(lastEvent.type) >= 0) {
+  if (lastEvent && ['complete', 'error'].indexOf(lastEvent.type) >= 0) {
     return false;
   }
 
@@ -42,18 +46,18 @@ Tracer.prototype.event = function(traceInfo, type, data) {
   var eventId = true;
 
   //specially handling for repitivive events like db, http
-  if(REPITITIVE_EVENTS[type]) {
+  if (REPITITIVE_EVENTS[type]) {
     //can't accept a new start event
-    if(traceInfo._lastEventId) {
+    if (traceInfo._lastEventId) {
       return false;
     }
     eventId = traceInfo._lastEventId = DefaultUniqueId.get();
   }
 
-  var event = {type: type, at: Ntp._now()};
-  if(data) {
+  var event = { type: type, at: Ntp._now() };
+  if (data) {
     var info = _.pick(traceInfo, 'type', 'name')
-    event.data = this._applyFilters(type, data, info, "start");;
+    event.data = this._applyFilters(type, data, info, "start");
   }
 
   traceInfo.events.push(event);
@@ -62,12 +66,12 @@ Tracer.prototype.event = function(traceInfo, type, data) {
   return eventId;
 };
 
-Tracer.prototype.eventEnd = function(traceInfo, eventId, data) {
-  if(traceInfo._lastEventId && traceInfo._lastEventId == eventId) {
+Tracer.prototype.eventEnd = function (traceInfo, eventId, data) {
+  if (traceInfo._lastEventId && traceInfo._lastEventId == eventId) {
     var lastEvent = this.getLastEvent(traceInfo);
     var type = lastEvent.type + 'end';
-    var event = {type: type, at: Ntp._now()};
-    if(data) {
+    var event = { type: type, at: Ntp._now() };
+    if (data) {
       var info = _.pick(traceInfo, 'type', 'name')
       event.data = this._applyFilters(type, data, info, "end");;
     }
@@ -81,13 +85,13 @@ Tracer.prototype.eventEnd = function(traceInfo, eventId, data) {
   }
 };
 
-Tracer.prototype.getLastEvent = function(traceInfo) {
-  return traceInfo.events[traceInfo.events.length -1]
+Tracer.prototype.getLastEvent = function (traceInfo) {
+  return traceInfo.events[traceInfo.events.length - 1]
 };
 
-Tracer.prototype.endLastEvent = function(traceInfo) {
+Tracer.prototype.endLastEvent = function (traceInfo) {
   var lastEvent = this.getLastEvent(traceInfo);
-  if(lastEvent && !/end$/.test(lastEvent.type)) {
+  if (lastEvent && !/end$/.test(lastEvent.type)) {
     traceInfo.events.push({
       type: lastEvent.type + 'end',
       at: Ntp._now()
@@ -97,15 +101,15 @@ Tracer.prototype.endLastEvent = function(traceInfo) {
   return false;
 };
 
-Tracer.prototype.buildTrace = function(traceInfo) {
+Tracer.prototype.buildTrace = function (traceInfo) {
   var firstEvent = traceInfo.events[0];
   var lastEvent = traceInfo.events[traceInfo.events.length - 1];
   var processedEvents = [];
 
-  if(firstEvent.type != 'start') {
+  if (firstEvent.type != 'start') {
     console.warn('Kadira: trace is not started yet');
     return null;
-  } else if(lastEvent.type != 'complete' && lastEvent.type != 'error') {
+  } else if (lastEvent.type != 'complete' && lastEvent.type != 'error') {
     //trace is not completed or errored yet
     console.warn('Kadira: trace is not completed or errored yet');
     return null;
@@ -121,19 +125,20 @@ Tracer.prototype.buildTrace = function(traceInfo) {
     var totalNonCompute = 0;
 
     firstEvent = ['start', 0];
-    if(traceInfo.events[0].data) firstEvent.push(traceInfo.events[0].data);
-    processedEvents.push(firstEvent);
-
-    for(var lc=1; lc < traceInfo.events.length - 1; lc += 2) {
-      var prevEventEnd = traceInfo.events[lc-1];
+    if (traceInfo.events[0].data) {
+      firstEvent.push(traceInfo.events[0].data);
+    }
+    for (var lc = 1; lc < traceInfo.events.length - 1; lc += 2) {
+      var prevEventEnd = traceInfo.events[lc - 1];
       var startEvent = traceInfo.events[lc];
-      var endEvent = traceInfo.events[lc+1];
+      var endEvent = traceInfo.events[lc + 1];
       var computeTime = startEvent.at - prevEventEnd.at;
-      if(computeTime > 0) processedEvents.push(['compute', computeTime]);
-      if(!endEvent) {
+
+      if (computeTime > 0) processedEvents.push(['compute', computeTime]);
+      if (!endEvent) {
         console.error('Kadira: no end event for type: ', startEvent.type);
         return null;
-      } else if(endEvent.type != startEvent.type + 'end') {
+      } else if (endEvent.type != startEvent.type + 'end') {
         console.error('Kadira: endevent type mismatch: ', startEvent.type, endEvent.type, JSON.stringify(traceInfo));
         return null;
       } else {
@@ -148,11 +153,16 @@ Tracer.prototype.buildTrace = function(traceInfo) {
     }
 
     computeTime = lastEvent.at - traceInfo.events[traceInfo.events.length - 2];
-    if(computeTime > 0) processedEvents.push(['compute', computeTime]);
+    if (computeTime > 0) processedEvents.push(['compute', computeTime]);
 
     var lastEventData = [lastEvent.type, 0];
-    if(lastEvent.data) lastEventData.push(lastEvent.data);
+    if (lastEvent.data) lastEventData.push(lastEvent.data);
     processedEvents.push(lastEventData);
+
+    if (processedEvents.length > MAX_TRACE_EVENTS) {
+      const removeCount = processedEvents.length - MAX_TRACE_EVENTS
+      processedEvents.splice(MAX_TRACE_EVENTS, removeCount);
+    }
 
     metrics.compute = metrics.total - totalNonCompute;
     traceInfo.metrics = metrics;
@@ -162,12 +172,12 @@ Tracer.prototype.buildTrace = function(traceInfo) {
   }
 };
 
-Tracer.prototype.addFilter = function(filterFn) {
+Tracer.prototype.addFilter = function (filterFn) {
   this._filters.push(filterFn);
 };
 
-Tracer.prototype._applyFilters = function(eventType, data, info) {
-  this._filters.forEach(function(filterFn) {
+Tracer.prototype._applyFilters = function (eventType, data, info) {
+  this._filters.forEach(function (filterFn) {
     data = filterFn(eventType, _.clone(data), info);
   });
 

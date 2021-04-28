@@ -1,3 +1,4 @@
+import { wrapFs } from "./fs.js";
 import {
   MongoOplogDriver,
   MongoPollingDriver,
@@ -6,6 +7,8 @@ import {
   Session,
   Subscription,
 } from "./meteorx.js";
+
+import { wrapWebApp } from "./wrap_webapp.js";
 
 var logger = Npm.require('debug')('kadira:hijack:instrument');
 
@@ -17,7 +20,11 @@ Kadira._startInstrumenting = function(callback) {
   }
 
   instrumented = true;
-  wrapStringifyDDP()
+  
+  wrapStringifyDDP();
+  wrapWebApp();
+  wrapFs();
+
   Meteor.startup(async function () {
     wrapServer(Server.prototype);
 
