@@ -4,9 +4,9 @@ const AVG_FIELDS = ['db', 'http', 'email', 'async', 'compute', 'total', 'fs'];
 WebAppModel = function () {
   this.metricsByMinute = Object.create(null);
   this.tracerStore = new TracerStore({
-    interval: 1000 * 10,
+    interval: 1000 * 60,
     maxTotalPoints: 30,
-    archiveEvery: 10
+    archiveEvery: 5
   });
 
   this.tracerStore.start();
